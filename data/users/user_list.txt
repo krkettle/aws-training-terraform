@@ -1,3 +1,0 @@
-tr-user1
-tr-user2
-tr-user3
