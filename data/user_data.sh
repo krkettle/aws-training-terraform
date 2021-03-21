@@ -17,12 +17,12 @@ service docker start
 usermod -aG docker ec2-user
 
 # Docker Composeのインストール
-curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.28.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 # サンプルコードのアップロード
 git clone $GIT_URL sample-code
-chmod 777 sample-code
 
 # 研修者用ディレクトリのセットアップ
 aws s3 cp s3://${BUCKET_NAME}/users/user_list.txt .
@@ -34,6 +34,7 @@ readline() {
 while readline user; do
   # ユーザ作成
   useradd $user
+  usermod -aG docker $user
 
   # ユーザ毎にキーペア作成
   command='
@@ -49,5 +50,6 @@ while readline user; do
 
   # サンプルコードを配置
   cp -r sample-code "/home/${user}/sample-code"
+  chown -R "${user}:${user}" "/home/${user}/sample-code"
 done <user_list.txt
 echo "Done at $(date '+%Y/%m/%d %H:%M:%S')" >/opt/status.txt
